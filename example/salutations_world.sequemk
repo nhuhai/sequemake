@@ -1,0 +1,7 @@
+@NODE@/echo_node_id: src/echo_node_id.sh
+
+@EDGE@/cat_node_ids: src/cat_node_ids.sh @NODE0@/echo_node_id @NODE1@/echo_node_id
+
+@SEQUENCE@/write_node_sentence: src/write_node_sentence @NODE@/echo_node_id
+
+@SEQUENCE@/write_edges: src/write_edges.sh @EDGE@/cat_node_ids
