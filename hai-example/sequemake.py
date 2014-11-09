@@ -48,31 +48,36 @@ def get_edge(node0, node1):
     path_to_node0 = root + "/by_node/" + node0 + "/echo_node_id.done.log"
     path_to_node1 = root + "/by_node/" + node1 + "/echo_node_id.done.log"
 
-    edge_str = path_to_edge + ".done.log: " + path_to_cat_node_script + " " + \
-               path_to_node0 + " " + path_to_node1 + "\n" + \
+    edge_str = path_to_edge + ".done.log:" + " \\\n" + \
+               "  " + path_to_cat_node_script + " \\\n" + \
+               "  " + path_to_node0 + " \\\n" + \
+               "  " + path_to_node1 + "\n" + \
                "\t" + "rm -rf " + path_to_edge + "*" + "\n" + \
                "\t" + "mkdir -p " + path_to_edge + "\n" + \
-               "\t" + path_to_cat_node_script + " " + path_to_edge + " " + node0 + " " + node1 + " " + \
-               ">" + path_to_edge + ".out.log " + \
-               "2>" + path_to_edge + ".err.log ; " + \
-               "rc=$$? ; " + \
-               "echo $$rc > " + path_to_edge + ".status.log ; " + \
-               "exit $$rc" + "\n" + \
-               "\t" + "touch " + path_to_edge + ".done.log " + "\n"
+               "\t" + path_to_cat_node_script + " " + path_to_edge + " " + node0 + " " + node1 + " \\\n" + \
+               "\t  " + ">" + path_to_edge + ".out.log" + " \\\n" + \
+               "\t  " + "2>" + path_to_edge + ".err.log ;" + " \\\n" + \
+               "\t  " + "rc=$$? ;" + " \\\n" + \
+               "\t  " + "echo $$rc > " + path_to_edge + ".status.log ;" + " \\\n" + \
+               "\t  " + "exit $$rc" + "\n" + \
+               "\t" + "touch " + path_to_edge + ".done.log" + "\n"
                
     return edge_str
 
 # takes in a list of nodes and returns a string for alla
 def get_all_edges(nodes):
-    return
+    all_edges_str = ""
+    if len(nodes) >= 2:
+        for i in range(0, len(nodes) - 1):
+            all_edges_str += get_edge(nodes[i], nodes[i+1]) + "\n"
+    return all_edges_str
     
-
+# execution starts here
 if len(argv) == 4:
     script, graph, sequence, results = argv
 
     path_to_write_node_sentence = root + "/by_sequence/" + sequence + "/write_node_sentence.done.log"
     path_to_write_edges = root + "/by_sequence/" + sequence + "/write_edges.done.log"
-
 
     with open(sequence) as f:
         nodes = [line.strip() for line in f]
@@ -81,7 +86,7 @@ if len(argv) == 4:
     out_str += "RESULTS_ROOT=" + results + "\n\n"
     out_str += get_all()                      # get all target
     out_str += get_all_nodes(nodes)           # append by_node
-    #out_str += get_all_edges(nodes)          # append by_edge
+    out_str += get_all_edges(nodes)          # append by_edge
     #out_str += get_all_by_sequence(nodes)    # append by_sequence
 
     out_file_name = sequence.split('.')[0]
