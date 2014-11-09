@@ -1,4 +1,4 @@
-# Rendered from salutations_world.sequemk operating on hello_world.sequence
+#Rendered from hello_world.sequemk operating on hello_world.sequence
 
 RESULTS_ROOT=results
 
@@ -58,7 +58,7 @@ $(RESULTS_ROOT)/by_edge/Hello/comma/cat_node_ids.done.log: \
   src/cat_node_ids.sh \
   $(RESULTS_ROOT)/by_node/Hello/echo_node_id.done.log \
   $(RESULTS_ROOT)/by_node/comma/echo_node_id.done.log
-	rm -rf $(RESULTS_ROOT)/by_edge/Hello/comma/cat_node_ids*
+	rm -rf $(RESULTS_ROOT)/by_edge/Hello/comma/cat_node_ids
 	mkdir -p $(RESULTS_ROOT)/by_edge/Hello/comma/cat_node_ids
 	src/cat_node_ids.sh $(RESULTS_ROOT)/by_edge/Hello/comma/cat_node_ids Hello comma \
 	  >$(RESULTS_ROOT)/by_edge/Hello/comma/cat_node_ids.out.log \
@@ -72,7 +72,7 @@ $(RESULTS_ROOT)/by_edge/comma/world/cat_node_ids.done.log: \
   src/cat_node_ids.sh \
   $(RESULTS_ROOT)/by_node/comma/echo_node_id.done.log \
   $(RESULTS_ROOT)/by_node/world/echo_node_id.done.log
-	rm -rf $(RESULTS_ROOT)/by_edge/comma/world/cat_node_ids*
+	rm -rf $(RESULTS_ROOT)/by_edge/comma/world/cat_node_ids
 	mkdir -p $(RESULTS_ROOT)/by_edge/comma/world/cat_node_ids
 	src/cat_node_ids.sh $(RESULTS_ROOT)/by_edge/comma/world/cat_node_ids comma world \
 	  >$(RESULTS_ROOT)/by_edge/comma/world/cat_node_ids.out.log \
@@ -86,7 +86,7 @@ $(RESULTS_ROOT)/by_edge/world/bang/cat_node_ids.done.log: \
   src/cat_node_ids.sh \
   $(RESULTS_ROOT)/by_node/world/echo_node_id.done.log \
   $(RESULTS_ROOT)/by_node/bang/echo_node_id.done.log
-	rm -rf $(RESULTS_ROOT)/by_edge/world/bang/cat_node_ids*
+	rm -rf $(RESULTS_ROOT)/by_edge/world/bang/cat_node_ids
 	mkdir -p $(RESULTS_ROOT)/by_edge/world/bang/cat_node_ids
 	src/cat_node_ids.sh $(RESULTS_ROOT)/by_edge/world/bang/cat_node_ids world bang \
 	  >$(RESULTS_ROOT)/by_edge/world/bang/cat_node_ids.out.log \
