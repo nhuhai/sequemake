@@ -1,12 +1,14 @@
 from sys import argv
+import ply.lex as lex
+import rule_list_lex
 
 root = "$(RESULTS_ROOT)"
 
-echo_node_id_script        = "src/echo_node_id.sh"
-cat_node_ids_script        = "src/cat_node_ids.sh"
-list_node_ids_script       = "src/list_node_ids.sh"
-write_edges_script         = "src/write_edges.sh"
-write_node_sentence_script = "src/write_node_sentence.sh"
+echo_node_id_script        = "" #= "src/echo_node_id.sh"
+cat_node_ids_script        = "" #= "src/cat_node_ids.sh"
+list_node_ids_script       = "" #= "src/list_node_ids.sh"
+write_edges_script         = "" #= "src/write_edges.sh"
+write_node_sentence_script = "" #= "src/write_node_sentence.sh"
 
 node_targets = []
 edge_targets = []
@@ -90,6 +92,33 @@ def get_all_edges(nodes):
             all_edges_str += get_edge(nodes[i], nodes[i+1]) + "\n"
     return all_edges_str
 
+# get string for the "write_edge.done.log" target
+def write_edges(sequence):
+    this_path   = root + "/by_sequence/" + sequence + "/write_edges"
+
+    out_log     = this_path + ".out.log"
+    err_log     = this_path + ".err.log"
+    status_log  = this_path + ".status.log"
+    done_log    = this_path + ".done.log"
+
+    sequence_str = done_log + ":" + " \\\n" + \
+                   "  " + write_edges_script
+
+    for edge_done in edge_targets:
+        sequence_str += " \\\n" + "  " + edge_done
+
+    sequence_str += "\n\t" + "rm -rf " + this_path + "*" + "\n" + \
+                    "\t" + "mkdir -p " + this_path + "\n" + \
+                    "\t" + write_edges_script + " " + this_path + " " + sequence + " \\\n" + \
+                    "\t  " + ">" + out_log + " \\\n" + \
+                    "\t  " + "2>" + err_log + " ;" + " \\\n" + \
+                    "\t  " + "rc=$$? ;" + " \\\n" + \
+                    "\t  " + "echo $$rc > " + status_log + " ;" + " \\\n" + \
+                    "\t  " + "exit $$rc" + "\n" + \
+                    "\t" + "touch " + done_log + "\n"
+                   
+    return sequence_str
+
 # get string for the "write_node_sentence.done.log" target
 def write_node_sentence(sequence):
     this_path              = root + "/by_sequence/" + sequence + "/write_node_sentence"
@@ -140,37 +169,37 @@ def list_node_ids(sequence):
                    "\t  " + "exit $$rc" + "\n" + \
                    "\t" + "touch " + done_log + "\n\n"
     return sequence_str
-
-# get string for the "write_edge.done.log" target
-def write_edges(sequence):
-    this_path   = root + "/by_sequence/" + sequence + "/write_edges"
-
-    out_log     = this_path + ".out.log"
-    err_log     = this_path + ".err.log"
-    status_log  = this_path + ".status.log"
-    done_log    = this_path + ".done.log"
-
-    sequence_str = done_log + ":" + " \\\n" + \
-                   "  " + write_edges_script
-
-    for edge_done in edge_targets:
-        sequence_str += " \\\n" + "  " + edge_done
-
-    sequence_str += "\n\t" + "rm -rf " + this_path + "*" + "\n" + \
-                    "\t" + "mkdir -p " + this_path + "\n" + \
-                    "\t" + write_edges_script + " " + this_path + " " + sequence + " \\\n" + \
-                    "\t  " + ">" + out_log + " \\\n" + \
-                    "\t  " + "2>" + err_log + " ;" + " \\\n" + \
-                    "\t  " + "rc=$$? ;" + " \\\n" + \
-                    "\t  " + "echo $$rc > " + status_log + " ;" + " \\\n" + \
-                    "\t  " + "exit $$rc" + "\n" + \
-                    "\t" + "touch " + done_log + "\n"
-                   
-    return sequence_str
     
 # execution starts here
 if len(argv) == 4:
     script, GRAPH, SEQUENCE, RESULTS = argv
+
+    with open (GRAPH, "r") as f:
+        sequeMakeFile = f.read()
+
+    lexer = lex.lex(module=rule_list_lex)
+    lexer.input(sequeMakeFile)
+    
+    # Tokenize
+    while True:
+        tok = lexer.token()
+        if not tok: break      # No more input
+        if tok.type == 'MAKE_LITERAL': 
+            if 'echo_node_id' in tok.value:
+                echo_node_id_script = tok.value
+                print echo_node_id_script
+            elif 'cat_node_ids' in tok.value:
+                cat_node_ids_script = tok.value
+                print cat_node_ids_script
+            elif 'write_node_sentence' in tok.value:
+                write_node_sentence_script = tok.value
+                print write_node_sentence_script
+            elif 'list_node_ids' in tok.value:
+                list_node_ids_script = tok.value
+                print list_node_ids_script
+            elif 'write_edges' in tok.value:
+                write_edges_script = tok.value
+                print write_edges_script
 
     with open(SEQUENCE) as f:
         nodes = [line.strip() for line in f]
@@ -190,5 +219,6 @@ if len(argv) == 4:
     out_file.close()
 else:
     print "Usage: python sequemake.py [sequemake graph] [lineage sequence] [results]"
+
 
 
